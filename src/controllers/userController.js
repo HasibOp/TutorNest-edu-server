@@ -30,8 +30,25 @@ const getUserRole = async (req, res) => {
   }
 };
 
+const updateUserStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['active', 'banned'].includes(status)) {
+      return res.status(400).send({ message: 'invalid status' });
+    }
+    const result = await userServices.updateUserStatus(req.params.id, status);
+    if (!result) {
+      return res.status(400).send({ message: 'invalid user id' });
+    }
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: 'failed to update user status' });
+  }
+};
+
 module.exports = {
   getAllUsers,
   createUser,
   getUserRole,
+  updateUserStatus,
 };
