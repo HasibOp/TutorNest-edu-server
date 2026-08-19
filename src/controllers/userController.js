@@ -1,4 +1,5 @@
 const userServices = require('../services/userServices');
+const categoryServices = require('../services/categoryServices');
 
 const getAllUsers = async (req, res) => {
   try {
@@ -46,9 +47,22 @@ const updateUserStatus = async (req, res) => {
   }
 };
 
+const getAdminStats = async (req, res) => {
+  try {
+    const [userStats, categories] = await Promise.all([
+      userServices.getUserStats(),
+      categoryServices.getAllCategories(),
+    ]);
+    res.send({ ...userStats, categories: categories.length });
+  } catch (error) {
+    res.status(500).send({ message: 'failed to fetch admin stats' });
+  }
+};
+
 module.exports = {
   getAllUsers,
   createUser,
   getUserRole,
   updateUserStatus,
+  getAdminStats,
 };

@@ -15,6 +15,17 @@ const getUserByEmail = async (email) => {
   return usersCollection().findOne({ email });
 };
 
+const getUserStats = async () => {
+  const [total, students, tutors, admins, banned] = await Promise.all([
+    usersCollection().countDocuments(),
+    usersCollection().countDocuments({ role: 'student' }),
+    usersCollection().countDocuments({ role: 'tutor' }),
+    usersCollection().countDocuments({ role: 'admin' }),
+    usersCollection().countDocuments({ status: 'banned' }),
+  ]);
+  return { total, students, tutors, admins, banned };
+};
+
 const updateUserStatus = async (id, status) => {
   if (!isValidObjectId(id)) {
     return null;
@@ -29,5 +40,6 @@ module.exports = {
   getAllUsers,
   createUser,
   getUserByEmail,
+  getUserStats,
   updateUserStatus,
 };
