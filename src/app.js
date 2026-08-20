@@ -4,6 +4,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const tutorProfileRoutes = require('./routes/tutorProfileRoutes');
 
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/', authRoutes);
 app.use('/users', userRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/tutor-profiles', tutorProfileRoutes);
 
 
 app.get('/', (req, res) => {
