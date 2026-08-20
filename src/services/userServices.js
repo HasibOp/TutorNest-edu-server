@@ -8,7 +8,12 @@ const getAllUsers = async () => {
 };
 
 const createUser = async (user) => {
-  return usersCollection().insertOne({ status: 'active', ...user });
+  const existing = await usersCollection().findOne({ email: user.email });
+  if (existing) {
+    return { insertedId: null, alreadyExists: true };
+  }
+  const result = await usersCollection().insertOne({ ...user, status: 'active' });
+  return { ...result, alreadyExists: false };
 };
 
 const getUserByEmail = async (email) => {
@@ -26,6 +31,13 @@ const getUserStats = async () => {
   return { total, students, tutors, admins, banned };
 };
 
+const setInitialRole = async (email, role) => {
+  return usersCollection().updateOne(
+    { email, role: null },
+    { $set: { role } }
+  );
+};
+
 const updateUserStatus = async (id, status) => {
   if (!isValidObjectId(id)) {
     return null;
@@ -41,5 +53,6 @@ module.exports = {
   createUser,
   getUserByEmail,
   getUserStats,
+  setInitialRole,
   updateUserStatus,
 };

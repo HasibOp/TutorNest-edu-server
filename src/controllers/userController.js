@@ -19,6 +19,22 @@ const createUser = async (req, res) => {
   }
 };
 
+const setRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!['student', 'tutor'].includes(role)) {
+      return res.status(400).send({ message: 'invalid role' });
+    }
+    if (req.decoded.email !== req.body.email) {
+      return res.status(403).send({ message: 'forbidden access' });
+    }
+    const result = await userServices.setInitialRole(req.body.email, role);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: 'failed to set role' });
+  }
+};
+
 const getUserRole = async (req, res) => {
   try {
     if (req.params.email !== req.decoded.email) {
@@ -63,6 +79,7 @@ module.exports = {
   getAllUsers,
   createUser,
   getUserRole,
+  setRole,
   updateUserStatus,
   getAdminStats,
 };
