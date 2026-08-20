@@ -2,10 +2,23 @@ const tutorProfileServices = require('../services/tutorProfileServices');
 
 const getAllProfiles = async (req, res) => {
   try {
-    const profiles = await tutorProfileServices.getAllProfiles();
+    const { categoryId } = req.query;
+    const profiles = await tutorProfileServices.getAllProfiles({ categoryId });
     res.send(profiles);
   } catch (error) {
     res.status(500).send({ message: 'failed to fetch tutor profiles' });
+  }
+};
+
+const getProfile = async (req, res) => {
+  try {
+    const profile = await tutorProfileServices.getProfileById(req.params.id);
+    if (!profile) {
+      return res.status(404).send({ message: 'tutor profile not found' });
+    }
+    res.send(profile);
+  } catch (error) {
+    res.status(500).send({ message: 'failed to fetch tutor profile' });
   }
 };
 
@@ -29,6 +42,7 @@ const upsertMyProfile = async (req, res) => {
 
 module.exports = {
   getAllProfiles,
+  getProfile,
   getMyProfile,
   upsertMyProfile,
 };
