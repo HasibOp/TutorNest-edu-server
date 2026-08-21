@@ -99,7 +99,7 @@ const getMyBookings = async (req, res) => {
 
 const updateBookingStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status } = req.body;                         
     if (!['completed', 'cancelled'].includes(status)) {
       return res.status(400).send({ message: 'invalid status' });
     }
@@ -130,8 +130,18 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
+const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await bookingServices.getAllBookings();
+    res.send(bookings);
+  } catch (error) {
+    res.status(500).send({ message: 'failed to fetch bookings' });
+  }
+};
+
 module.exports = {
   createBooking,
   getMyBookings,
+  getAllBookings,
   updateBookingStatus,
 };

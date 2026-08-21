@@ -11,6 +11,10 @@ const getBookingsByTutor = async (tutorEmail) => {
   return bookingsCollection().find({ tutorEmail }).sort({ date: 1, startTime: 1 }).toArray();
 };
 
+const getAllBookings = async () => {
+  return bookingsCollection().find().sort({ createdAt: -1 }).toArray();
+};
+
 const findConflict = async ({ tutorEmail, date, startTime }) => {
   return bookingsCollection().findOne({
     tutorEmail,
@@ -49,6 +53,7 @@ const updateBookingStatus = async (id, status) => {
 module.exports = {
   getBookingsByStudent,
   getBookingsByTutor,
+  getAllBookings,
   findConflict,
   createBooking,
   getBookingById,
