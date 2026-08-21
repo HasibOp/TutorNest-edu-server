@@ -35,6 +35,16 @@ const setRole = async (req, res) => {
   }
 };
 
+const updateMyProfile = async (req, res) => {
+  try {
+    const { name, photo } = req.body;
+    const result = await userServices.updateProfile(req.decoded.email, { name, photo });
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: 'failed to update profile' });
+  }
+};
+
 const getUserRole = async (req, res) => {
   try {
     if (req.params.email !== req.decoded.email) {
@@ -80,6 +90,7 @@ module.exports = {
   createUser,
   getUserRole,
   setRole,
+  updateMyProfile,
   updateUserStatus,
   getAdminStats,
 };

@@ -38,6 +38,14 @@ const setInitialRole = async (email, role) => {
   );
 };
 
+const updateProfile = async (email, { name, photo }) => {
+  const update = {};
+  if (name !== undefined) update.name = name;
+  if (photo !== undefined) update.photo = photo;
+
+  return usersCollection().updateOne({ email }, { $set: update });
+};
+
 const updateUserStatus = async (id, status) => {
   if (!isValidObjectId(id)) {
     return null;
@@ -54,5 +62,6 @@ module.exports = {
   getUserByEmail,
   getUserStats,
   setInitialRole,
+  updateProfile,
   updateUserStatus,
 };
