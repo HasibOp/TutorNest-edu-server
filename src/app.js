@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const tutorProfileRoutes = require('./routes/tutorProfileRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.use('/users', userRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/tutor-profiles', tutorProfileRoutes);
 app.use('/bookings', bookingRoutes);
+app.use('/reviews', reviewRoutes);
 
 
 app.get('/', (req, res) => {

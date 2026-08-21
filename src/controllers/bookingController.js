@@ -1,6 +1,7 @@
 const bookingServices = require('../services/bookingServices');
 const tutorProfileServices = require('../services/tutorProfileServices');
 const userServices = require('../services/userServices');
+const reviewServices = require('../services/reviewServices');
 
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -70,13 +71,27 @@ const getMyBookings = async (req, res) => {
   try {
     const email = req.decoded.email;
     const user = await userServices.getUserByEmail(email);
+    const isTutor = user?.role === 'tutor';
 
-    const bookings =
-      user?.role === 'tutor'
-        ? await bookingServices.getBookingsByTutor(email)
-        : await bookingServices.getBookingsByStudent(email);
+    const bookings = isTutor
+      ? await bookingServices.getBookingsByTutor(email)
+      : await bookingServices.getBookingsByStudent(email);
 
-    res.send(bookings);
+    if (isTutor) {
+      return res.send(bookings);
+    }
+
+    const completedIds = bookings
+      .filter((b) => b.status === 'completed')
+      .map((b) => String(b._id));
+    const reviewedIds = await reviewServices.getReviewedBookingIds(completedIds);
+
+    const enriched = bookings.map((b) => ({
+      ...b,
+      reviewed: reviewedIds.has(String(b._id)),
+    }));
+
+    res.send(enriched);
   } catch (error) {
     res.status(500).send({ message: 'failed to fetch bookings' });
   }
