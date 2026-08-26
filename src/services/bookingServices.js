@@ -20,14 +20,14 @@ const findConflict = async ({ tutorEmail, date, startTime }) => {
     tutorEmail,
     date,
     startTime,
-    status: 'confirmed',
+    status: { $in: ['pending', 'confirmed'] },
   });
 };
 
 const createBooking = async (booking) => {
   const doc = {
     ...booking,
-    status: 'confirmed',
+    status: 'pending',
     createdAt: new Date(),
   };
   return bookingsCollection().insertOne(doc);
@@ -50,6 +50,16 @@ const updateBookingStatus = async (id, status) => {
   );
 };
 
+const confirmBooking = async (id, message) => {
+  if (!isValidObjectId(id)) {
+    return null;
+  }
+  return bookingsCollection().updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { status: 'confirmed', confirmationMessage: message, confirmedAt: new Date() } }
+  );
+};
+
 module.exports = {
   getBookingsByStudent,
   getBookingsByTutor,
@@ -58,4 +68,5 @@ module.exports = {
   createBooking,
   getBookingById,
   updateBookingStatus,
+  confirmBooking,
 };

@@ -99,7 +99,7 @@ const getMyBookings = async (req, res) => {
 
 const updateBookingStatus = async (req, res) => {
   try {
-    const { status } = req.body;                         
+    const { status } = req.body;
     if (!['completed', 'cancelled'].includes(status)) {
       return res.status(400).send({ message: 'invalid status' });
     }
@@ -119,7 +119,10 @@ const updateBookingStatus = async (req, res) => {
     if (status === 'completed' && !isTutor) {
       return res.status(403).send({ message: 'only the tutor can mark a session complete' });
     }
-    if (booking.status !== 'confirmed') {
+    if (status === 'completed' && booking.status !== 'confirmed') {
+      return res.status(400).send({ message: 'this booking can no longer be updated' });
+    }
+    if (status === 'cancelled' && !['pending', 'confirmed'].includes(booking.status)) {
       return res.status(400).send({ message: 'this booking can no longer be updated' });
     }
 
@@ -127,6 +130,38 @@ const updateBookingStatus = async (req, res) => {
     res.send(result);
   } catch (error) {
     res.status(500).send({ message: 'failed to update booking' });
+  }
+};
+
+const MAX_CONFIRMATION_MESSAGE_LENGTH = 1000;
+
+const confirmBooking = async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).send({ message: 'a message with the session details (e.g. a Google Meet link or location) is required' });
+    }
+    if (message.length > MAX_CONFIRMATION_MESSAGE_LENGTH) {
+      return res.status(400).send({ message: 'message is too long' });
+    }
+
+    const booking = await bookingServices.getBookingById(req.params.id);
+    if (!booking) {
+      return res.status(404).send({ message: 'booking not found' });
+    }
+
+    const email = req.decoded.email;
+    if (booking.tutorEmail !== email) {
+      return res.status(403).send({ message: 'only the tutor can confirm this booking' });
+    }
+    if (booking.status !== 'pending') {
+      return res.status(400).send({ message: 'this booking can no longer be confirmed' });
+    }
+
+    const result = await bookingServices.confirmBooking(req.params.id, message.trim());
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: 'failed to confirm booking' });
   }
 };
 
@@ -144,4 +179,5 @@ module.exports = {
   getMyBookings,
   getAllBookings,
   updateBookingStatus,
+  confirmBooking,
 };
